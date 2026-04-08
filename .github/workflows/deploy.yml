@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        go: [1.21]
+        go: [1.26]
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     name: Deploy app to Heroku
@@ -40,6 +40,18 @@ jobs:
           gofmt -s -d ./ && \
           golangci-lint run -v --timeout 5m --build-tags headless && \
           go test -v -race -tags headless ./...
+
+      - name: Install Heroku CLI
+        run: |
+          curl https://cli-assets.heroku.com/install.sh | sh
+
+      - name: Get app url
+        uses: akhileshns/heroku-deploy@v3.14.15
+        with:
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_app_name: ""
+          heroku_email: ${{ secrets.HEROKU_USER_EMAIL }}
+          justlogin: true
 
       - name: Deploy to Heroku
         uses: akhileshns/heroku-deploy@v3.14.15
