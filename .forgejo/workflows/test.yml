@@ -28,5 +28,11 @@ jobs:
       run: |
         test -z "$(gofmt -s -l .)" || { gofmt -s -d .; exit 1; }
         golangci-lint run -v --timeout 5m --build-tags headless
+    # bundled.go is what go generate writes from icons/ and fonts/ with the fyne
+    # command of go.mod (go tool fyne); on Renovate's branches regenerate.yml commits it.
+    - name: Check the bundled resources
+      run: |
+        go generate ./pkg/ui
+        git diff --exit-code pkg/ui/bundled.go || { echo "::error::Run go generate ./pkg/ui and commit pkg/ui/bundled.go"; exit 1; }
     - name: Run tests
       run: go test -race -tags headless ./...
