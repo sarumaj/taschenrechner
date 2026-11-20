@@ -1,0 +1,15 @@
+# The regenerate bot (bots/regenerate, set up in HomeLab) commits these generated files
+# on Renovate's branches, so that the checks of ci.yml that compare them pass. It builds
+# in Go's image, with the toolchain go.mod asks for, with no token in reach of the dependencies'
+# code, and pushes only commits with these messages that change these paths.
+jobs:
+  bundle:
+    image: docker.io/library/golang:1.26-bookworm
+    env: {GOTOOLCHAIN: auto}
+    prepare: git --version
+    steps:
+      # pkg/ui/bundled.go as the fyne command of go.mod writes it, when the branch changes it.
+      - run: go generate ./pkg/ui
+        paths: pkg/ui/bundled.go
+        message: "build: pkg/ui/bundled.go as the new fyne bundle writes it"
+        when: [go.mod fyne.io/tools]
