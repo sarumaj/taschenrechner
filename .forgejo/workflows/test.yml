@@ -34,5 +34,16 @@ jobs:
       run: |
         go generate ./pkg/ui
         git diff --exit-code pkg/ui/bundled.go || { echo "::error::Run go generate ./pkg/ui and commit pkg/ui/bundled.go"; exit 1; }
+    # As JSON with the coverage, for the report below, which also prints the failed
+    # tests' output.
     - name: Run tests
-      run: go test -race -tags headless ./...
+      id: tests
+      run: go test -race -tags headless -json -coverprofile=/tmp/cover.out ./... > /tmp/go-test.json
+    # The results and the coverage as one comment on the pull request
+    # (dawid/ci-actions), also when tests failed.
+    - name: Test report
+      if: always() && steps.tests.outcome != 'skipped'
+      uses: https://git.ciepiela.org/dawid/ci-actions/test-report@main
+      with:
+        go-test-json: /tmp/go-test.json
+        coverage: /tmp/cover.out
