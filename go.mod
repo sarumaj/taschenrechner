@@ -3,7 +3,7 @@ module github.com/sarumaj/edu-taschenrechner
 go 1.26.2
 
 require (
-	fyne.io/fyne/v2 v2.8.2
+	fyne.io/fyne/v2 v2.8.3
 	github.com/cucumber/godog v0.16.0
 )
 
